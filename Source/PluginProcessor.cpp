@@ -194,10 +194,22 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
 
 //==============================================================================
 // This creates new instances of the plugin..
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
-    return new SimpleEQAudioProcessor();
+    ChainSettings settings;
+    
+    settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
+    settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
+    settings.peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
+    settings.peakGainInDecibels = apvts.getRawParameterValue("Peak Gain")->load();
+    settings.peakQuality = apvts.getRawParameterValue("Peak Q")->load();
+    settings.lowCutSlope = apvts.getRawParameterValue("LowCut Slope")->load();
+    settings.highCutSlope = apvts.getRawParameterValue("HighCut Slope")->load();
+    
+    return settings;
 }
+
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
 {
@@ -233,3 +245,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     
     return layout;
 }
+
+
+
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new SimpleEQAudioProcessor();
+}
+
+
