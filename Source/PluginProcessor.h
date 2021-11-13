@@ -10,11 +10,20 @@
 
 #include <JuceHeader.h>
 
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
+
 struct ChainSettings
 {
     float peakFreq { 0.f }, peakGainInDecibels { 0.f }, peakQuality {1.f};
     float lowCutFreq { 0.f }, highCutFreq { 0.f };
-    int lowCutSlope { 0 }, highCutSlope { 0 };
+    
+    Slope lowCutSlope { Slope::Slope_12 }, highCutSlope { Slope::Slope_12 };
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
