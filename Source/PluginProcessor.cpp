@@ -102,7 +102,15 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     leftChain.prepare(spec);
     rightChain.prepare(spec);
     
+    auto chainSettings = getChainSettings(apvts);
     
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
+                                                                                chainSettings.peakFreq,
+                                                                                chainSettings.peakQuality,
+                                                                                juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+    
+    *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
     
 }
 
@@ -152,6 +160,16 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    auto chainSettings = getChainSettings(apvts);
+    
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                                                chainSettings.peakFreq,
+                                                                                chainSettings.peakQuality,
+                                                                                juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
+    
+    *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
 
     juce::dsp::AudioBlock<float> block(buffer);
     
@@ -163,6 +181,9 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     
     leftChain.process(leftContext);
     rightChain.process(rightContext);
+    
+    
+    
     
 }
 
@@ -216,13 +237,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
-                                                           "LowCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+                                                           "LowCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20.f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
-                                                           "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+                                                           "HighCut Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 20000.f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
-                                                           "Peak Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 750.f));
+                                                           "Peak Freq", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f), 750.f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
                                                            "Peak Gain", juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f), 0.f));
