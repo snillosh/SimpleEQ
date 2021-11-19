@@ -61,30 +61,30 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
         double mag = 1.f;
         auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
         
-        if (! monoChain.isBypassed<ChainPositions::Peak>() )
+        if ( !monoChain.isBypassed<ChainPositions::Peak>() )
             mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
         
-        if (! lowcut.isBypassed<0>())
+        if ( !lowcut.isBypassed<0>())
             mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! lowcut.isBypassed<1>())
+        if ( !lowcut.isBypassed<1>())
             mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! lowcut.isBypassed<2>())
+        if ( !lowcut.isBypassed<2>())
             mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! lowcut.isBypassed<3>())
+        if ( !lowcut.isBypassed<3>())
             mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
         
-        if (! highcut.isBypassed<0>())
+        if ( !highcut.isBypassed<0>())
             mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! highcut.isBypassed<1>())
+        if ( !highcut.isBypassed<1>())
             mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! highcut.isBypassed<2>())
+        if ( !highcut.isBypassed<2>())
             mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (! highcut.isBypassed<3>())
+        if ( !highcut.isBypassed<3>())
             mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
         
         mags[i] = Decibels::gainToDecibels(mag);
     }
-    Path responceCurve;
+    Path responseCurve;
     
     const double outputMin = responseArea.getBottom();
     const double outputMax = responseArea.getY();
@@ -93,18 +93,18 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
         return jmap(input, -24.0, 24.0, outputMin, outputMax);
     };
     
-    responceCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
+    responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
     
     for (size_t i = 1; i < mags.size(); ++i)
     {
-        responceCurve.lineTo(responseArea.getX() + 1, map(mags[i]));
+        responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
     
     g.setColour(Colours::orange);
     g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
     
     g.setColour(Colours::white);
-    g.strokePath(responceCurve, PathStrokeType(2.f));
+    g.strokePath(responseCurve, PathStrokeType(2.f));
 }
 
 void SimpleEQAudioProcessorEditor::resized()
